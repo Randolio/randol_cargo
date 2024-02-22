@@ -9,7 +9,7 @@ local function setCargoVehicle(source, truck, prop)
     while not DoesEntityExist(cargoVeh) do Wait(10) end 
 
     while GetVehiclePedIsIn(ped, false) ~= cargoVeh do
-        Wait(10)
+        Wait(100)
         SetPedIntoVehicle(ped, cargoVeh, -1)
         break
     end
@@ -39,14 +39,6 @@ lib.callback.register('randol_cargo:server:beginRoute', function(source)
     }
 
     TriggerClientEvent('randol_cargo:client:startRoute', src, storedRoute[src], NetworkGetNetworkIdFromEntity(vehicle), NetworkGetNetworkIdFromEntity(crate))
-    return true
-end)
-
-lib.callback.register('randol_cargo:server:storeCrate', function(source, netid)
-    local src = source
-    local Player = GetPlayer(src)
-    if not storedRoute[src] then return false end
-    storedRoute[src].crateHandle = NetworkGetEntityFromNetworkId(netid)
     return true
 end)
 
