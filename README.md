@@ -7,6 +7,9 @@ GTA scaleforms and drop off draw marker for nostalgic reasons. Utilizing ox lib 
 
 There is an event handler called 'randol_cargo:handleVehicleKeys' for each framework in the bridge. You'll have to fill that in to fit your keys system.
 
+# Showcase
+https://streamable.com/c4vov9
+
 ## Requirements
 
 * [ox_lib](https://github.com/overextended/ox_lib/releases/tag/v3.16.2)
