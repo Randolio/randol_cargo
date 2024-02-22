@@ -3,7 +3,7 @@ local Config = lib.require('config')
 local storedRoute = {}
 
 local function setCargoVehicle(source, truck, prop)
-    local cargoVeh = CreateVehicle(joaat(truck), Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, Config.VehicleSpawn.w, true, false)
+    local cargoVeh = CreateVehicleServerSetter(joaat(truck), 'automobile', Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, Config.VehicleSpawn.w)
     local ped = GetPlayerPed(source)
 
     while not DoesEntityExist(cargoVeh) do Wait(10) end 
