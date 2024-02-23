@@ -42,14 +42,6 @@ lib.callback.register('randol_cargo:server:beginRoute', function(source)
     return true
 end)
 
-lib.callback.register('randol_cargo:server:storeCrate', function(source, netid)
-    local src = source
-    local Player = GetPlayer(src)
-    if not storedRoute[src] then return false end
-    storedRoute[src].crateHandle = NetworkGetEntityFromNetworkId(netid)
-    return true
-end)
-
 lib.callback.register('randol_cargo:server:updateRoute', function(source, CRATE_NET)
     if not CRATE_NET or not storedRoute[source] then return false end
 
