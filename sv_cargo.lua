@@ -94,7 +94,6 @@ lib.callback.register('randol_cargo:server:finishRoute', function(source)
     return true
 end)
 
-
 AddEventHandler('playerDropped', function()
     if storedRoute[source] then
         if DoesEntityExist(storedRoute[source].vehicle) then
