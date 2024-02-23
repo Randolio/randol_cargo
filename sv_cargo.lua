@@ -3,21 +3,20 @@ local Config = lib.require('config')
 local storedRoute = {}
 
 local function setCargoVehicle(source, truck, prop)
-    local cargoVeh = CreateVehicleServerSetter(joaat(truck), 'automobile', Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, Config.VehicleSpawn.w)
+    local veh = CreateVehicleServerSetter(joaat(truck), 'automobile', Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, Config.VehicleSpawn.w)
     local ped = GetPlayerPed(source)
 
-    while not DoesEntityExist(cargoVeh) do Wait(10) end 
+    while not DoesEntityExist(veh) do Wait(10) end 
 
-    while GetVehiclePedIsIn(ped, false) ~= cargoVeh do
+    while GetVehiclePedIsIn(ped, false) ~= veh do
+        TaskWarpPedIntoVehicle(ped, veh, -1)
         Wait(100)
-        SetPedIntoVehicle(ped, cargoVeh, -1)
-        break
     end
 
     local crate = CreateObject(joaat(prop), Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z-5.0, true, true, false)
     while not DoesEntityExist(crate) do Wait(10) end 
 
-    return cargoVeh, crate
+    return veh, crate
 end
 
 lib.callback.register('randol_cargo:server:beginRoute', function(source)
