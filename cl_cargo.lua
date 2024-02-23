@@ -1,7 +1,7 @@
 local Config = lib.require('config')
 
 local isHired, droppingOff, showText = false, false, false
-local CRATE_OBJECT, cargoPed, DropOffZone, jobBlip, startPoint
+local CRATE_OBJECT, cargoPed, DropOffZone, jobBlip, startPoint, pedInteract
 local routeData = {}
 
 local CARGO_BLIP = AddBlipForCoord(Config.PedCoords.x, Config.PedCoords.y, Config.PedCoords.z)
@@ -27,7 +27,7 @@ local function showCargoScaleform(bool)
     local sec = info.sec
     while sec > 0 do
         Wait(1)
-        sec = sec - 0.01
+        sec -= 0.01
         DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
     end
     SetScaleformMovieAsNoLongerNeeded(scaleform)
@@ -140,7 +140,10 @@ local function yeetPed()
     if DoesEntityExist(cargoPed) then
         DeleteEntity(cargoPed)
         cargoPed = nil
-        if pedInteract then return pedInteract:remove() end
+        if pedInteract then
+            pedInteract:remove()
+            pedInteract = nil
+        end
     end
 end
 
