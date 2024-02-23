@@ -14,7 +14,9 @@ local function setCargoVehicle(source, truck, prop)
     end
 
     local crate = CreateObject(joaat(prop), Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z-5.0, true, true, false)
-    while not DoesEntityExist(crate) do Wait(10) end 
+    while not DoesEntityExist(crate) do Wait(10) end
+
+    SetEntityIgnoreRequestControlFilter(crate, true)
 
     return cargoVeh, crate
 end
