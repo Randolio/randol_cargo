@@ -140,7 +140,7 @@ local function yeetPed()
     if DoesEntityExist(cargoPed) then
         DeleteEntity(cargoPed)
         cargoPed = nil
-        pedInteract:remove()
+        if pedInteract then return pedInteract:remove() end
     end
 end
 
