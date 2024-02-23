@@ -36,7 +36,11 @@ lib.callback.register('randol_cargo:server:beginRoute', function(source)
         route = MY_ROUTE.routes[math.random(#MY_ROUTE.routes)], 
         complete = false,
         crateHandle = crate,
+        vehNet = NetworkGetNetworkIdFromEntity(vehicle),
+        crateNet = NetworkGetNetworkIdFromEntity(crate)
     }
+
+    Entity(vehicle).state:set('randol_attach', storedRoute[src], true)
 
     TriggerClientEvent('randol_cargo:client:startRoute', src, storedRoute[src], NetworkGetNetworkIdFromEntity(vehicle), NetworkGetNetworkIdFromEntity(crate))
     return true
@@ -92,6 +96,18 @@ lib.callback.register('randol_cargo:server:finishRoute', function(source)
 
     storedRoute[src] = nil
     return true
+end)
+
+AddEventHandler('onResourceStop', function ()
+    for _, route in pairs(storedRoute) do
+        if DoesEntityExist(route.vehicle) then
+            DeleteEntity(route.vehicle)
+        end
+        if DoesEntityExist(route.crateHandle) then
+            DeleteEntity(route.crateHandle)
+        end
+    end
+    storedRoute = nil
 end)
 
 

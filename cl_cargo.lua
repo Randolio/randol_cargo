@@ -202,22 +202,22 @@ local function spawnPed()
     end
 end
 
-RegisterNetEvent('randol_cargo:client:startRoute', function(data, vehNet, crateNet)
+RegisterNetEvent('randol_cargo:client:startRoute', function(data)
     if GetInvokingResource() then return end
     routeData = data
-    
+
     local veh = lib.waitFor(function()
-        if NetworkDoesEntityExistWithNetworkId(vehNet) then
-            return NetToVeh(vehNet)
+        if NetworkDoesEntityExistWithNetworkId(data.vehNet) then
+            return NetToVeh(data.vehNet)
         end
     end, 'Could not load entity in time.', 1000)
-    
+
     local rnd = tostring(math.random(1000, 9999))
-    CRATE_OBJECT = NetworkGetEntityFromNetworkId(crateNet)
+    CRATE_OBJECT = NetworkGetEntityFromNetworkId(data.crateNet)
 
     SetVehicleNumberPlateText(veh, "CARG"..rnd)
     TriggerEvent('randol_cargo:handleVehicleKeys', veh)
-    SetVehicleEngineOn(veh, true, true)
+    SetVehicleEngineOn(veh, true, true, false)
     SetVehicleExtra(veh, 2, true)
     SetVehicleExtra(veh, 3, true)
 
@@ -227,17 +227,22 @@ RegisterNetEvent('randol_cargo:client:startRoute', function(data, vehNet, crateN
         Entity(veh).state.fuel = 100
     end
 
-    if NetworkGetEntityOwner(CRATE_OBJECT) ~= cache.playerId then
-        while NetworkGetEntityOwner(CRATE_OBJECT) ~= cache.playerId do -- I'm not proud of it either, trust me.
-            NetworkRequestControlOfEntity(CRATE_OBJECT)
-            Wait(10)
-        end
-    end
-
-    local x, y, z = routeData.attach.x, routeData.attach.y, routeData.attach.z
-    AttachEntityToEntity(CRATE_OBJECT, veh, GetEntityBoneIndexByName(veh, 'bodyshell'), x, y, z, 0, 0, 0, 1, 1, 0, 1, 0, 1)
-    FreezeEntityPosition(CRATE_OBJECT, true)
     setRoute(routeData.route)
+end)
+
+AddStateBagChangeHandler('randol_attach', nil, function(bagName, key, value, _unused, replicated)
+    local ent = GetEntityFromStateBagName(bagName)
+    if ent == 0 then return end
+
+    local crate = NetworkGetEntityFromNetworkId(value.crateNet)
+
+    if crate == 0 then return end
+
+    DetachEntity(crate, true, true)
+
+    local x, y, z = value.attach.x, value.attach.y, value.attach.z
+    AttachEntityToEntity(crate, ent, GetEntityBoneIndexByName(ent, 'bodyshell'), x, y, z, 0, 0, 0, true, true, false, true, 0, true)
+    FreezeEntityPosition(crate, true)
 end)
 
 local function createStartPoint()
