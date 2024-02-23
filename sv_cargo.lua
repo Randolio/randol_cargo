@@ -3,41 +3,51 @@ local Config = lib.require('config')
 local storedRoute = {}
 
 local function setCargoVehicle(source, truck, prop)
-    local veh = CreateVehicleServerSetter(joaat(truck), 'automobile', Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, Config.VehicleSpawn.w)
+    local cargoVeh = CreateVehicle(joaat(truck), Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, Config.VehicleSpawn.w, true, false)
     local ped = GetPlayerPed(source)
 
-    while not DoesEntityExist(veh) do Wait(10) end 
+    while not DoesEntityExist(cargoVeh) do Wait(10) end 
 
-    while GetVehiclePedIsIn(ped, false) ~= veh do
-        TaskWarpPedIntoVehicle(ped, veh, -1)
-        Wait(100)
+    while GetVehiclePedIsIn(ped, false) ~= cargoVeh do
+        Wait(10)
+        SetPedIntoVehicle(ped, cargoVeh, -1)
+        break
     end
 
     local crate = CreateObject(joaat(prop), Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z-5.0, true, true, false)
     while not DoesEntityExist(crate) do Wait(10) end 
 
-    return veh, crate
+    return cargoVeh, crate
 end
 
 lib.callback.register('randol_cargo:server:beginRoute', function(source)
     local src = source
     local Player = GetPlayer(src)
-    local route = jobRoutes[math.random(#jobRoutes)]
+    local roll = math.random(#jobRoutes)
+    local MY_ROUTE = jobRoutes[roll]
     if storedRoute[src] then return false end
 
-    local vehicle, crate = setCargoVehicle(src, route.vehicle, route.prop)
+    local vehicle, crate = setCargoVehicle(src, MY_ROUTE.vehicle, MY_ROUTE.prop)
 
     storedRoute[src] = {
         vehicle = vehicle,
-        prop = route.prop,
-        attach = route.attach,
-        payout = math.random(route.payout.min, route.payout.max), 
-        route = route.routes[math.random(#route.routes)], 
+        prop = MY_ROUTE.prop,
+        attach = MY_ROUTE.attach,
+        payout = math.random(MY_ROUTE.payout.min, MY_ROUTE.payout.max), 
+        route = MY_ROUTE.routes[math.random(#MY_ROUTE.routes)], 
         complete = false,
         crateHandle = crate,
     }
 
     TriggerClientEvent('randol_cargo:client:startRoute', src, storedRoute[src], NetworkGetNetworkIdFromEntity(vehicle), NetworkGetNetworkIdFromEntity(crate))
+    return true
+end)
+
+lib.callback.register('randol_cargo:server:storeCrate', function(source, netid)
+    local src = source
+    local Player = GetPlayer(src)
+    if not storedRoute[src] then return false end
+    storedRoute[src].crateHandle = NetworkGetEntityFromNetworkId(netid)
     return true
 end)
 
@@ -83,10 +93,4 @@ lib.callback.register('randol_cargo:server:finishRoute', function(source)
 
     storedRoute[src] = nil
     return true
-end)
-
-AddEventHandler('playerDropped', function()
-    if storedRoute[source] then
-        storedRoute[source] = nil
-    end
 end)

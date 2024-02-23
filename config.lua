@@ -18,5 +18,6 @@ return {
         msg = 'Return back to the warehouse to get paid.', 
         sec = 7, 
         audioName = 'Mission_Pass_Notify', audioRef = 'DLC_HEISTS_GENERAL_FRONTEND_SOUNDS'
-    }
+    },
+    Target = false, -- use target or ox lib zones [E] to interact.
 }

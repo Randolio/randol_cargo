@@ -17,20 +17,20 @@ EndTextCommandSetBlipName(CARGO_BLIP)
 local function showCargoScaleform(bool)
     local scaleform = lib.requestScaleformMovie('MIDSIZED_MESSAGE', 1000)
     local info = Config.DeliveryInfo
-    BeginScaleformMovieMethod(scaleform, 'SHOW_COND_SHARD_MESSAGE')
+	BeginScaleformMovieMethod(scaleform, 'SHOW_COND_SHARD_MESSAGE')
     if bool then info = Config.ReturnInfo end
 
-    PushScaleformMovieMethodParameterString(info.title)
-    PushScaleformMovieMethodParameterString(info.msg)
-    EndScaleformMovieMethod()
+	PushScaleformMovieMethodParameterString(info.title)
+	PushScaleformMovieMethodParameterString(info.msg)
+	EndScaleformMovieMethod()
     PlaySoundFrontend(-1, info.audioName, info.audioRef, 0)
     local sec = info.sec
-    while sec > 0 do
-        Wait(1)
-        sec -= 0.01
-        DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
-    end
-    SetScaleformMovieAsNoLongerNeeded(scaleform)
+	while sec > 0 do
+		Wait(1)
+		sec = sec - 0.01
+		DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
+	end
+	SetScaleformMovieAsNoLongerNeeded(scaleform)
 end
 
 local function finishRoute()
@@ -44,6 +44,36 @@ local function finishRoute()
         CRATE_OBJECT = nil
         table.wipe(routeData)
     end
+end
+
+local function interactContext()
+    lib.registerContext({
+        id = 'interact_cargo',
+        title = "Cargo Deliveries",
+        options = {
+            {
+                title = "Start Cargo Delivery",
+                icon = "fa-solid fa-truck-moving",
+                disabled = isHired,
+                onSelect = function()
+                    if IsAnyVehicleNearPoint(Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, 5.0) then 
+                        DoNotification('A vehicle is blocking the spawn.', 'error') 
+                        return 
+                    end
+                    local success = lib.callback.await('randol_cargo:server:beginRoute', false)
+                end,
+            },
+            {
+                title = "Finish Delivery",
+                icon = "fa-solid fa-clipboard-check",
+                disabled = not isHired,
+                onSelect = function()
+                    finishRoute()
+                end,
+            },
+        }
+    })
+    lib.showContext('interact_cargo')
 end
 
 local function nearZone(point)
@@ -110,6 +140,7 @@ local function yeetPed()
     if DoesEntityExist(cargoPed) then
         DeleteEntity(cargoPed)
         cargoPed = nil
+        pedInteract:remove()
     end
 end
 
@@ -124,43 +155,57 @@ local function spawnPed()
     SetEntityInvincible(cargoPed, true)
     FreezeEntityPosition(cargoPed, true)
 
-    exports['qb-target']:AddTargetEntity(cargoPed, { 
-        options = {
-            { 
-                icon = "fa-solid fa-truck-moving",
-                label = "Start Cargo Delivery",
-                canInteract = function() return not isHired end,
-                action = function()
-                    if IsAnyVehicleNearPoint(Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, 5.0) then 
-                        DoNotification('A vehicle is blocking the spawn.', 'error') 
-                        return 
-                    end
-                    local success = lib.callback.await('randol_cargo:server:beginRoute', false)
-                end,
-            },
-            { 
-                icon = "fa-solid fa-clipboard-check",
-                label = "Finish Delivery",
-                canInteract = function() return isHired end,
-                action = function()
-                    finishRoute()
-                end,
-            },
-        }, 
-        distance = 1.5, 
-    })
+    if Config.Target then
+        exports['qb-target']:AddTargetEntity(cargoPed, { 
+            options = {
+                { 
+                    icon = "fa-solid fa-truck-moving",
+                    label = "Start Cargo Delivery",
+                    canInteract = function() return not isHired end,
+                    action = function()
+                        if IsAnyVehicleNearPoint(Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, 5.0) then 
+                            DoNotification('A vehicle is blocking the spawn.', 'error') 
+                            return 
+                        end
+                        local success = lib.callback.await('randol_cargo:server:beginRoute', false)
+                    end,
+                },
+                { 
+                    icon = "fa-solid fa-clipboard-check",
+                    label = "Finish Delivery",
+                    canInteract = function() return isHired end,
+                    action = function()
+                        finishRoute()
+                    end,
+                },
+            }, 
+            distance = 1.5, 
+        })
+    else
+        pedInteract = lib.zones.box({
+            coords = vec3(Config.PedCoords.x, Config.PedCoords.y, Config.PedCoords.z+0.5), 
+            size = vector3(2, 2, 2),
+            rotation = GetEntityHeading(cargoPed),
+            debug = tr,
+            onEnter = function()
+                lib.showTextUI('**E** - Interact', {position = "left-center"})
+            end,
+            onExit = function()
+                lib.hideTextUI()
+            end,
+            inside = function()
+                if IsControlJustPressed(0, 38) then
+                    interactContext()
+                end
+            end,
+        })
+    end
 end
 
 RegisterNetEvent('randol_cargo:client:startRoute', function(data, vehNet, crateNet)
     if GetInvokingResource() then return end
     routeData = data
-
-    local veh = lib.waitFor(function()
-        if NetworkDoesEntityExistWithNetworkId(vehNet) then
-            return NetToVeh(vehNet)
-        end
-    end, 'Could not load entity in time.', 1000)
-    
+    local veh = NetworkGetEntityFromNetworkId(vehNet)
     local rnd = tostring(math.random(1000, 9999))
     CRATE_OBJECT = NetworkGetEntityFromNetworkId(crateNet)
 
@@ -217,8 +262,8 @@ AddEventHandler('onResourceStart', function(resource)
 end)
 
 AddEventHandler('onResourceStop', function(resourceName) 
-    if GetCurrentResourceName() == resourceName then
+	if GetCurrentResourceName() == resourceName then
         if DropOffZone then DropOffZone:remove() end
         if DoesEntityExist(cargoPed) then DeleteEntity(cargoPed) end
-    end 
+	end 
 end)
