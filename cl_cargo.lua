@@ -186,7 +186,7 @@ local function spawnPed()
             coords = vec3(Config.PedCoords.x, Config.PedCoords.y, Config.PedCoords.z+0.5), 
             size = vector3(2, 2, 2),
             rotation = GetEntityHeading(cargoPed),
-            debug = tr,
+            debug = false,
             onEnter = function()
                 lib.showTextUI('**E** - Interact', {position = "left-center"})
             end,
