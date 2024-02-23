@@ -9,9 +9,8 @@ local function setCargoVehicle(source, truck, prop)
     while not DoesEntityExist(cargoVeh) do Wait(10) end 
 
     while GetVehiclePedIsIn(ped, false) ~= cargoVeh do
-        Wait(10)
-        SetPedIntoVehicle(ped, cargoVeh, -1)
-        break
+        TaskWarpPedIntoVehicle(ped, cargoVeh, -1)
+        Wait(100)
     end
 
     local crate = CreateObject(joaat(prop), Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z-5.0, true, true, false)
