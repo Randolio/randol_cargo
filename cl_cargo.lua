@@ -27,7 +27,7 @@ local function showCargoScaleform(bool)
     local sec = info.sec
     while sec > 0 do
         Wait(1)
-        sec = sec - 0.01
+        sec -= 0.01
         DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
     end
     SetScaleformMovieAsNoLongerNeeded(scaleform)
