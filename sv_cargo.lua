@@ -42,7 +42,7 @@ lib.callback.register('randol_cargo:server:beginRoute', function(source)
 
     Entity(vehicle).state:set('randol_attach', storedRoute[src], true)
 
-    TriggerClientEvent('randol_cargo:client:startRoute', src, storedRoute[src], NetworkGetNetworkIdFromEntity(vehicle), NetworkGetNetworkIdFromEntity(crate))
+    TriggerClientEvent('randol_cargo:client:startRoute', src, storedRoute[src])
     return true
 end)
 
