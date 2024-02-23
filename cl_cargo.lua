@@ -17,20 +17,20 @@ EndTextCommandSetBlipName(CARGO_BLIP)
 local function showCargoScaleform(bool)
     local scaleform = lib.requestScaleformMovie('MIDSIZED_MESSAGE', 1000)
     local info = Config.DeliveryInfo
-	BeginScaleformMovieMethod(scaleform, 'SHOW_COND_SHARD_MESSAGE')
+    BeginScaleformMovieMethod(scaleform, 'SHOW_COND_SHARD_MESSAGE')
     if bool then info = Config.ReturnInfo end
 
-	PushScaleformMovieMethodParameterString(info.title)
-	PushScaleformMovieMethodParameterString(info.msg)
-	EndScaleformMovieMethod()
+    PushScaleformMovieMethodParameterString(info.title)
+    PushScaleformMovieMethodParameterString(info.msg)
+    EndScaleformMovieMethod()
     PlaySoundFrontend(-1, info.audioName, info.audioRef, 0)
     local sec = info.sec
-	while sec > 0 do
-		Wait(1)
-		sec = sec - 0.01
-		DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
-	end
-	SetScaleformMovieAsNoLongerNeeded(scaleform)
+    while sec > 0 do
+        Wait(1)
+        sec = sec - 0.01
+        DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
+    end
+    SetScaleformMovieAsNoLongerNeeded(scaleform)
 end
 
 local function finishRoute()
@@ -262,8 +262,8 @@ AddEventHandler('onResourceStart', function(resource)
 end)
 
 AddEventHandler('onResourceStop', function(resourceName) 
-	if GetCurrentResourceName() == resourceName then
+    if GetCurrentResourceName() == resourceName then
         if DropOffZone then DropOffZone:remove() end
         if DoesEntityExist(cargoPed) then DeleteEntity(cargoPed) end
-	end 
+    end 
 end)
