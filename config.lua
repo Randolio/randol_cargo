@@ -19,5 +19,5 @@ return {
         sec = 7, 
         audioName = 'Mission_Pass_Notify', audioRef = 'DLC_HEISTS_GENERAL_FRONTEND_SOUNDS'
     },
-    Target = false, -- use target or ox lib zones [E] to interact.
+    Target = true, -- true = use target | false = ox lib zones [E] to interact.
 }
