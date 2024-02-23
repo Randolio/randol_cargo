@@ -205,7 +205,13 @@ end
 RegisterNetEvent('randol_cargo:client:startRoute', function(data, vehNet, crateNet)
     if GetInvokingResource() then return end
     routeData = data
-    local veh = NetworkGetEntityFromNetworkId(vehNet)
+    
+    local veh = lib.waitFor(function()
+        if NetworkDoesEntityExistWithNetworkId(vehNet) then
+            return NetToVeh(vehNet)
+        end
+    end, 'Could not load entity in time.', 1000)
+    
     local rnd = tostring(math.random(1000, 9999))
     CRATE_OBJECT = NetworkGetEntityFromNetworkId(crateNet)
 

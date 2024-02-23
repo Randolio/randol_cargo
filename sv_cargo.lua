@@ -93,3 +93,16 @@ lib.callback.register('randol_cargo:server:finishRoute', function(source)
     storedRoute[src] = nil
     return true
 end)
+
+
+AddEventHandler('playerDropped', function()
+    if storedRoute[source] then
+        if DoesEntityExist(storedRoute[source].vehicle) then
+            DeleteEntity(storedRoute[source].vehicle)
+        end
+        if DoesEntityExist(storedRoute[source].crateHandle) then
+            DeleteEntity(storedRoute[source].crateHandle)
+        end
+        storedRoute[source] = nil
+    end
+end)
