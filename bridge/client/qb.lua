@@ -10,9 +10,10 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     OnPlayerUnload()
 end)
 
-AddEventHandler('randol_cargo:handleVehicleKeys', function(veh)
-    TriggerEvent("vehiclekeys:client:SetOwner", GetVehicleNumberPlateText(veh))
-end)
+function handleVehicleKeys(veh)
+    local plate = GetVehicleNumberPlateText(veh)
+    TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', plate)
+end
 
 function hasPlyLoaded()
     return LocalPlayer.state.isLoggedIn

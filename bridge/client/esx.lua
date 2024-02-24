@@ -12,9 +12,9 @@ RegisterNetEvent('esx:onPlayerLogout', function()
     OnPlayerUnload()
 end)
 
-AddEventHandler('randol_cargo:handleVehicleKeys', function(veh)
-    -- ??
-end)
+function handleVehicleKeys(veh)
+    local plate = GetVehicleNumberPlateText(veh)
+end
 
 function hasPlyLoaded()
     return ESX.PlayerLoaded

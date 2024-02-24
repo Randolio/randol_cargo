@@ -14,9 +14,9 @@ RegisterNetEvent('ND:characterLoaded', function(character)
     OnPlayerLoaded()
 end)
 
-AddEventHandler('randol_cargo:handleVehicleKeys', function(veh)
-    -- ??
-end)
+function handleVehicleKeys(veh)
+    local plate = GetVehicleNumberPlateText(veh)
+end
 
 function hasPlyLoaded()
     return LocalPlayer.state.isLoggedIn
