@@ -219,8 +219,8 @@ RegisterNetEvent('randol_cargo:client:startRoute', function(data)
     CRATE_OBJECT = NetworkGetEntityFromNetworkId(data.crateNet)
 
     SetVehicleNumberPlateText(veh, "CARG"..rnd)
-    TriggerEvent('randol_cargo:handleVehicleKeys', veh)
-    SetVehicleEngineOn(veh, true, true, false)
+    handleVehicleKeys(veh)
+    SetVehicleEngineOn(veh, true, true)
     SetVehicleExtra(veh, 2, true)
     SetVehicleExtra(veh, 3, true)
 
