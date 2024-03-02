@@ -6,11 +6,11 @@ local function setCargoVehicle(source, truck, prop)
     local cargoVeh = CreateVehicleServerSetter(joaat(truck), 'automobile', Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, Config.VehicleSpawn.w)
     local ped = GetPlayerPed(source)
 
-    while not DoesEntityExist(cargoVeh) do Wait(10) end 
+    while not DoesEntityExist(cargoVeh) do Wait(0) end 
 
     while GetVehiclePedIsIn(ped, false) ~= cargoVeh do
         TaskWarpPedIntoVehicle(ped, cargoVeh, -1)
-        Wait(100)
+        Wait(0)
     end
 
     local crate = CreateObject(joaat(prop), Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z-5.0, true, true, false)
