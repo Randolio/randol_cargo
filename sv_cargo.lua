@@ -14,7 +14,9 @@ local function setCargoVehicle(source, truck, prop)
     end
 
     local crate = CreateObject(joaat(prop), Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z-5.0, true, true, false)
-    while not DoesEntityExist(crate) do Wait(10) end 
+    while not DoesEntityExist(crate) do Wait(10) end
+
+    SetEntityIgnoreRequestControlFilter(crate, true)
 
     return cargoVeh, crate
 end
@@ -36,9 +38,13 @@ lib.callback.register('randol_cargo:server:beginRoute', function(source)
         route = MY_ROUTE.routes[math.random(#MY_ROUTE.routes)], 
         complete = false,
         crateHandle = crate,
+        vehNet = NetworkGetNetworkIdFromEntity(vehicle),
+        crateNet = NetworkGetNetworkIdFromEntity(crate)
     }
 
-    TriggerClientEvent('randol_cargo:client:startRoute', src, storedRoute[src], NetworkGetNetworkIdFromEntity(vehicle), NetworkGetNetworkIdFromEntity(crate))
+    Entity(vehicle).state:set('randol_attach', storedRoute[src], true)
+
+    TriggerClientEvent('randol_cargo:client:startRoute', src, storedRoute[src])
     return true
 end)
 
