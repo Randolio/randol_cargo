@@ -150,13 +150,14 @@ end
 local function spawnPed()
     if DoesEntityExist(cargoPed) then return end
 
-    lib.requestModel(joaat(Config.Ped), 5000)
+    lib.requestModel(joaat(Config.Ped))
     cargoPed = CreatePed(0, Config.Ped, Config.PedCoords, false, false)
     SetEntityAsMissionEntity(cargoPed, true, true)
     SetPedFleeAttributes(cargoPed, 0, 0)
     SetBlockingOfNonTemporaryEvents(cargoPed, true)
     SetEntityInvincible(cargoPed, true)
     FreezeEntityPosition(cargoPed, true)
+    SetModelAsNoLongerNeeded(joaat(Config.Ped))
 
     if Config.Target then
         exports['qb-target']:AddTargetEntity(cargoPed, { 
@@ -228,13 +229,6 @@ RegisterNetEvent('randol_cargo:client:startRoute', function(data, vehNet, crateN
         exports[Config.Fuel.script]:SetFuel(veh, 100.0)
     else
         Entity(veh).state.fuel = 100
-    end
-
-    if NetworkGetEntityOwner(CRATE_OBJECT) ~= cache.playerId then
-        while NetworkGetEntityOwner(CRATE_OBJECT) ~= cache.playerId do -- I'm not proud of it either, trust me.
-            NetworkRequestControlOfEntity(CRATE_OBJECT)
-            Wait(10)
-        end
     end
 
     local x, y, z = routeData.attach.x, routeData.attach.y, routeData.attach.z
