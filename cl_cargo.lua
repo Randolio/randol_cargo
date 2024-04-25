@@ -87,7 +87,6 @@ local function nearZone(point)
         if isHired and cache.vehicle and IsEntityAttachedToEntity(cache.vehicle, CRATE_OBJECT) then
             if IsControlJustPressed(0, 38) and not droppingOff then
                 droppingOff = true
-                FreezeEntityPosition(cache.vehicle, true)
                 lib.hideTextUI()
                 if lib.progressCircle({
                     duration = 5000,
@@ -104,7 +103,6 @@ local function nearZone(point)
                     Wait(500)
                     local success = lib.callback.await('randol_cargo:server:updateRoute', false, NetworkGetNetworkIdFromEntity(CRATE_OBJECT))
                     if success then
-                        FreezeEntityPosition(cache.vehicle, false)
                         droppingOff = false
                         showCargoScaleform(true)
                     end
