@@ -3,6 +3,7 @@ local Config = lib.require('config')
 local isHired, droppingOff, showText = false, false, false
 local CRATE_OBJECT, cargoPed, DropOffZone, jobBlip, startPoint, pedInteract
 local routeData = {}
+local oxtarget = GetResourceState('ox_target') == 'started'
 
 local CARGO_BLIP = AddBlipForCoord(Config.PedCoords.x, Config.PedCoords.y, Config.PedCoords.z)
 SetBlipSprite(CARGO_BLIP, 615)
@@ -13,6 +14,22 @@ SetBlipColour(CARGO_BLIP, 52)
 BeginTextCommandSetBlipName("STRING")
 AddTextComponentSubstringPlayerName("Cargo Delivery")
 EndTextCommandSetBlipName(CARGO_BLIP)
+
+local function targetLocalEntity(entity, options, distance)
+    if oxtarget then
+        for _, option in ipairs(options) do
+            option.distance = distance
+            option.onSelect = option.action
+            option.action = nil
+        end
+        exports.ox_target:addLocalEntity(entity, options)
+    else
+        exports['qb-target']:AddTargetEntity(entity, {
+            options = options,
+            distance = distance
+        })
+    end
+end
 
 local function showCargoScaleform(bool)
     local scaleform = lib.requestScaleformMovie('MIDSIZED_MESSAGE', 1000)
@@ -136,6 +153,11 @@ end
 
 local function yeetPed()
     if DoesEntityExist(cargoPed) then
+        if oxtarget then
+            exports.ox_target:removeLocalEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
+        else
+            exports['qb-target']:RemoveTargetEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
+        end
         DeleteEntity(cargoPed)
         cargoPed = nil
         if pedInteract then
@@ -158,31 +180,28 @@ local function spawnPed()
     SetModelAsNoLongerNeeded(joaat(Config.Ped))
 
     if Config.Target then
-        exports['qb-target']:AddTargetEntity(cargoPed, { 
-            options = {
-                { 
-                    icon = "fa-solid fa-truck-moving",
-                    label = "Start Cargo Delivery",
-                    canInteract = function() return not isHired end,
-                    action = function()
-                        if IsAnyVehicleNearPoint(Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, 5.0) then 
-                            DoNotification('A vehicle is blocking the spawn.', 'error') 
-                            return 
-                        end
-                        local success = lib.callback.await('randol_cargo:server:beginRoute', false)
-                    end,
-                },
-                { 
-                    icon = "fa-solid fa-clipboard-check",
-                    label = "Finish Delivery",
-                    canInteract = function() return isHired end,
-                    action = function()
-                        finishRoute()
-                    end,
-                },
-            }, 
-            distance = 1.5, 
-        })
+        targetLocalEntity(cargoPed, { 
+            { 
+                icon = "fa-solid fa-truck-moving",
+                label = "Start Cargo Delivery",
+                canInteract = function() return not isHired end,
+                action = function()
+                    if IsAnyVehicleNearPoint(Config.VehicleSpawn.x, Config.VehicleSpawn.y, Config.VehicleSpawn.z, 5.0) then 
+                        DoNotification('A vehicle is blocking the spawn.', 'error') 
+                        return 
+                    end
+                    local success = lib.callback.await('randol_cargo:server:beginRoute', false)
+                end,
+            },
+            { 
+                icon = "fa-solid fa-clipboard-check",
+                label = "Finish Delivery",
+                canInteract = function() return isHired end,
+                action = function()
+                    finishRoute()
+                end,
+            },
+        }, 1.5)
     else
         pedInteract = lib.zones.box({
             coords = vec3(Config.PedCoords.x, Config.PedCoords.y, Config.PedCoords.z+0.5), 
@@ -249,7 +268,14 @@ function OnPlayerLoaded()
 end
 
 function OnPlayerUnload()
-    if DoesEntityExist(cargoPed) then DeleteEntity(cargoPed) end
+    if DoesEntityExist(cargoPed) then
+        if oxtarget then
+            exports.ox_target:removeLocalEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
+        else
+            exports['qb-target']:RemoveTargetEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
+        end
+        DeleteEntity(cargoPed)
+    end
     if DoesBlipExist(jobBlip) then RemoveBlip(jobBlip) end
     if startPoint then startPoint:remove() end
     if DropOffZone then DropOffZone:remove() end
@@ -265,6 +291,13 @@ end)
 AddEventHandler('onResourceStop', function(resourceName) 
     if GetCurrentResourceName() == resourceName then
         if DropOffZone then DropOffZone:remove() end
-        if DoesEntityExist(cargoPed) then DeleteEntity(cargoPed) end
+        if DoesEntityExist(cargoPed) then
+            if oxtarget then
+                exports.ox_target:removeLocalEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
+            else
+                exports['qb-target']:RemoveTargetEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
+            end
+            DeleteEntity(cargoPed)
+        end
     end 
 end)
