@@ -3,7 +3,6 @@ local Config = lib.require('config')
 local isHired, droppingOff, showText = false, false, false
 local CRATE_OBJECT, cargoPed, DropOffZone, jobBlip, startPoint, pedInteract
 local routeData = {}
-local oxtarget = GetResourceState('ox_target') == 'started'
 
 local CARGO_BLIP = AddBlipForCoord(Config.PedCoords.x, Config.PedCoords.y, Config.PedCoords.z)
 SetBlipSprite(CARGO_BLIP, 615)
@@ -16,7 +15,7 @@ AddTextComponentSubstringPlayerName("Cargo Delivery")
 EndTextCommandSetBlipName(CARGO_BLIP)
 
 local function targetLocalEntity(entity, options, distance)
-    if oxtarget then
+    if GetResourceState('ox_target') == 'started' then
         for _, option in ipairs(options) do
             option.distance = distance
             option.onSelect = option.action
@@ -153,7 +152,7 @@ end
 
 local function yeetPed()
     if DoesEntityExist(cargoPed) then
-        if oxtarget then
+        if GetResourceState('ox_target') == 'started' then
             exports.ox_target:removeLocalEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
         else
             exports['qb-target']:RemoveTargetEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
@@ -269,7 +268,7 @@ end
 
 function OnPlayerUnload()
     if DoesEntityExist(cargoPed) then
-        if oxtarget then
+        if GetResourceState('ox_target') == 'started' then
             exports.ox_target:removeLocalEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
         else
             exports['qb-target']:RemoveTargetEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
@@ -292,7 +291,7 @@ AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
         if DropOffZone then DropOffZone:remove() end
         if DoesEntityExist(cargoPed) then
-            if oxtarget then
+            if GetResourceState('ox_target') == 'started' then
                 exports.ox_target:removeLocalEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
             else
                 exports['qb-target']:RemoveTargetEntity(cargoPed, {'Start Cargo Delivery', 'Finish Delivery'})
